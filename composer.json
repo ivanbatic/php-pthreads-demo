@@ -1,0 +1,19 @@
+{
+    "name": "ivanbatic/php-pthreads-demo",
+    "require": {
+        "php": "^5.6.0",
+        "ext-pthreads": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "": "src/"
+        }
+    },
+    "license": "GPL",
+    "authors": [
+        {
+            "name": "Ivan Batić",
+            "email": "ivan.batic@live.com"
+        }
+    ]
+}
