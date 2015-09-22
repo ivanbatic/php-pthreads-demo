@@ -4,7 +4,7 @@ namespace Server;
 
 use Server\Exception\SocketException;
 
-class TcpSocketServer extends \Worker
+class TcpSocketServer extends \Thread
 {
     const LOOP_TIMEOUT = 200000;
     const READ_CHUNK = 1024;
@@ -19,7 +19,7 @@ class TcpSocketServer extends \Worker
     private $port;
 
     /** @var int */
-    private $maxConnections;
+    private $maxWaitingConnections;
 
     /** @var resource */
     private $socket;
@@ -34,12 +34,12 @@ class TcpSocketServer extends \Worker
      * @param $address
      * @param $port
      */
-    public function __construct($name, $address, $port, $maxConnections = 10)
+    public function __construct($name, $address, $port, $maxWaitingConnections = 10)
     {
         $this->name = $name;
         $this->address = $address;
         $this->port = $port;
-        $this->maxConnections = $maxConnections;
+        $this->maxWaitingConnections = $maxWaitingConnections;
     }
 
 
@@ -52,7 +52,7 @@ class TcpSocketServer extends \Worker
             false === socket_set_nonblock($this->socket) ||
             false === socket_set_option($this->socket, SOL_SOCKET, SO_REUSEADDR, 1) ||
             false === socket_set_option($this->socket, SOL_SOCKET, SO_REUSEPORT, 1) ||
-            false === socket_listen($this->socket, $this->maxConnections)
+            false === socket_listen($this->socket, $this->maxWaitingConnections)
         ) {
             throw new SocketException($this->socket);
         }
@@ -70,7 +70,6 @@ class TcpSocketServer extends \Worker
                 $connections[] = $newConnection;
                 $this->println("Hey there, welcome to channel {$this->name}", $newConnection);
             }
-
 
             foreach ($connections as $index => $connectionSocket) {
                 $connectionReading = socket_read($connectionSocket, self::READ_CHUNK);
